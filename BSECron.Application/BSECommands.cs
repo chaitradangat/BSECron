@@ -18,7 +18,10 @@ using ClosedXML.Excel;
 
 using BSECron.DataAccess;
 using BSECron.Common;
+using BSECron.WebQueries;
+
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace BSECron.Application
 {
@@ -318,13 +321,13 @@ namespace BSECron.Application
             }
         }
 
-        public Dictionary<string, double> GetPriceSpread(object DtBseData, int index,ref string scripName)
+        public Dictionary<string, double> GetPriceSpread(object DtBseData, int index, ref string scripName)
         {
             Dictionary<string, double> priceSpread = new Dictionary<string, double>();
 
             DataTable dtBseData = (DataTable)DtBseData;
 
-            if (dtBseData != null && dtBseData.Rows.Count > 0 && index < dtBseData.Rows.Count && index!=-1)
+            if (dtBseData != null && dtBseData.Rows.Count > 0 && index < dtBseData.Rows.Count && index != -1)
             {
                 DataRow dr = dtBseData.DefaultView[index].Row;//dtBseData.Rows[index];
 
@@ -345,12 +348,54 @@ namespace BSECron.Application
                     priceSpread.Add(Regex.Replace(columnName, "\\(\\d+\\)", ""), closePrice);
 
 
-                    closePrice = closePrice - (closePrice * (dr.Field<double>(columnName)/100));
+                    closePrice = closePrice - (closePrice * (dr.Field<double>(columnName) / 100));
 
                     ++cIdx;
                 }
             }
 
+            return priceSpread;
+        }
+
+        public Dictionary<string, double> GetPriceSpread(object DtBseData, int index,ref string scripName,bool useLive)
+        {
+            DataTable dtBseData = (DataTable)DtBseData;
+
+            Dictionary<string, double> priceSpread = new Dictionary<string, double>();
+
+            if (dtBseData != null && dtBseData.Rows.Count > 0 && index < dtBseData.Rows.Count && index != -1)
+            {
+                DataRow dr = dtBseData.DefaultView[index].Row;
+
+                int cIdx = GetDateColumnIndex(dtBseData);
+
+                var columnName = string.Empty;
+
+                scripName = dr.Field<string>("SC_NAME");
+
+                WebCommands wcmd = new WebCommands();
+
+                var graphData = wcmd.GetGraphDataForSymbol(scripName);
+
+                if (graphData!=null)
+                {
+                    dynamic json = JsonConvert.DeserializeObject(graphData);
+
+                    int idx = 0;
+
+                    if (json != null && json.chart != null && json.chart.result != null && json.chart.result[0] != null)
+                    {
+                        if (json.chart.result[0].timestamp != null && json.chart.result[0].indicators.adjclose[0] != null)
+                        {
+                            foreach (var item in json.chart.result[0].timestamp)
+                            {
+                                priceSpread.Add(Convert.ToString(item), Convert.ToDouble(json.chart.result[0].indicators.adjclose[0].adjclose[idx]));
+                                idx++;
+                            }
+                        }
+                    }
+                }
+            }
             return priceSpread;
         }
     }
