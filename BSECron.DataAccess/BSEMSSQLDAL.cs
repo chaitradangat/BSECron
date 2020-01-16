@@ -252,21 +252,31 @@ namespace BSECron.DataAccess
                 throw new Exception("Error in date range");
             }
 
+            Random tblRandom = new Random(11);
+
+            string tblRandomName = "#TEMP";
+
+            while (tblRandomName.Length <= 30)
+            {
+                tblRandomName += tblRandom.Next();
+            }
 
 
-            daywiseStatQuery = string.Format("SELECT {2} BseData.SC_NAME,BseData.[CLOSE],BseData.NO_OF_SHRS,BseData.NO_TRADES,BseData.NET_TURNOV, {0} FROM({1}", columnList, " ", totalReturns);
+            daywiseStatQuery = string.Format("SELECT * INTO {0} FROM BseData WHERE BseData.TRADING_DATE = '{1}'; ",tblRandomName,toDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            daywiseStatQuery += string.Format("SELECT {2} T2.SC_NAME,{3}.[CLOSE],{3}.NO_OF_SHRS,{3}.NO_TRADES,{3}.NET_TURNOV, {0} FROM({1}", columnList, " ", totalReturns,tblRandomName);
             daywiseStatQuery += string.Format("SELECT * FROM({0}", " ");
             daywiseStatQuery += string.Format("SELECT * FROM({0}", " ");
-            daywiseStatQuery += string.Format("SELECT SC_NAME,TRADING_DATE AS [DAY],MAX(ROUND(((([CLOSE] - PREVCLOSE) / PREVCLOSE) * 100),3)) AS CHANGE FROM BseData WHERE PREVCLOSE <> 0 GROUP BY SC_NAME,TRADING_DATE{0}", " ");
+            //daywiseStatQuery += string.Format("SELECT SC_NAME,TRADING_DATE AS [DAY],MAX(ROUND(((([CLOSE] - [LAST]) / [LAST]) * 100),3)) AS CHANGE FROM BseData WHERE PREVCLOSE <> 0 AND PREVCLOSE IS NOT NULL GROUP BY SC_NAME,TRADING_DATE{0}", " ");
+            daywiseStatQuery += string.Format("SELECT SC_NAME,TRADING_DATE AS [DAY],ROUND(((([CLOSE] - [LAST]) / [LAST]) * 100),3) AS CHANGE FROM BseData WHERE PREVCLOSE <> 0 AND PREVCLOSE IS NOT NULL AND TRADING_DATE BETWEEN '{0}' AND '{1}'{2}", fromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), toDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), " ");
             daywiseStatQuery += string.Format(")T{0}", " ");
             daywiseStatQuery += string.Format("PIVOT(MAX(CHANGE) FOR [DAY] IN ({1})) AS TOT{0}", " ", columnList1);
             daywiseStatQuery += string.Format(")T1{0}", " ");
             daywiseStatQuery += string.Format(")T2{0}", " ");
-            daywiseStatQuery += string.Format("FULL JOIN BseData ON BseData.SC_NAME = T2.SC_NAME{0}", " ");
-            daywiseStatQuery += string.Format("WHERE BseData.TRADING_DATE = '{1}'{0}", " ", toDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-            daywiseStatQuery += string.Format("ORDER BY ({0}) * BseData.NET_TURNOV DESC", totalReturns.Replace(" AS TOTAL_PERC,", ""));
-
-
+            daywiseStatQuery += string.Format("FULL JOIN {0} ON {0}.SC_NAME = T2.SC_NAME WHERE T2.SC_NAME IS NOT NULL{1}",tblRandomName," ");
+            //daywiseStatQuery += string.Format("WHERE BseData.TRADING_DATE = '{1}'{0}", " ", toDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            //daywiseStatQuery += string.Format("ORDER BY ({0}) * BseData.NET_TURNOV DESC", totalReturns.Replace(" AS TOTAL_PERC,", ""));
+            daywiseStatQuery += string.Format("ORDER BY {0}.NET_TURNOV DESC;",tblRandomName);
+            daywiseStatQuery += string.Format("DROP TABLE {0}",tblRandomName);
             return daywiseStatQuery;
         }
 
