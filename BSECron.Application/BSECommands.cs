@@ -377,7 +377,7 @@ namespace BSECron.Application
                         {
                             foreach (var item in json.chart.result[0].timestamp)
                             {
-                                priceSpread.Add(new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Convert.ToInt64(item)).ToString("dd-MMM-yyyy"), Convert.ToDouble(json.chart.result[0].indicators.adjclose[0].adjclose[idx]));
+                                priceSpread.Add(new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Convert.ToInt64(item)).ToString("dd-MMM-yyyy"), json.chart.result[0].indicators.adjclose[0].adjclose[idx] != null? Convert.ToDouble(json.chart.result[0].indicators.adjclose[0].adjclose[idx]):0);
                                 idx++;
                             }
                         }
