@@ -267,7 +267,8 @@ namespace BSECron.DataAccess
             daywiseStatQuery += string.Format("SELECT * FROM({0}", " ");
             daywiseStatQuery += string.Format("SELECT * FROM({0}", " ");
             //daywiseStatQuery += string.Format("SELECT SC_NAME,TRADING_DATE AS [DAY],MAX(ROUND(((([CLOSE] - [LAST]) / [LAST]) * 100),3)) AS CHANGE FROM BseData WHERE PREVCLOSE <> 0 AND PREVCLOSE IS NOT NULL GROUP BY SC_NAME,TRADING_DATE{0}", " ");
-            daywiseStatQuery += string.Format("SELECT SC_NAME,TRADING_DATE AS [DAY],ROUND(((([CLOSE] - [LAST]) / [LAST]) * 100),3) AS CHANGE FROM BseData WHERE PREVCLOSE <> 0 AND PREVCLOSE IS NOT NULL AND TRADING_DATE BETWEEN '{0}' AND '{1}'{2}", fromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), toDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), " ");
+            //daywiseStatQuery += string.Format("SELECT SC_NAME,TRADING_DATE AS [DAY],ROUND(((([CLOSE] - [LAST]) / [LAST]) * 100),3) AS CHANGE FROM BseData WHERE PREVCLOSE <> 0 AND PREVCLOSE IS NOT NULL AND TRADING_DATE BETWEEN '{0}' AND '{1}'{2}", fromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), toDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), " ");
+            daywiseStatQuery += string.Format("SELECT SC_NAME,TRADING_DATE AS [DAY],MAX(ROUND(((([CLOSE] - [PREVCLOSE]) / [PREVCLOSE]) * 100),3)) AS CHANGE FROM BseData WHERE PREVCLOSE <> 0 GROUP BY SC_NAME,TRADING_DATE {0}", " ");
             daywiseStatQuery += string.Format(")T{0}", " ");
             daywiseStatQuery += string.Format("PIVOT(MAX(CHANGE) FOR [DAY] IN ({1})) AS TOT{0}", " ", columnList1);
             daywiseStatQuery += string.Format(")T1{0}", " ");
