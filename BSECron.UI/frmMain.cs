@@ -34,6 +34,8 @@ namespace BSECron.UI
             dtFromDateCache = default(DateTime);
 
             dtToDateCache = default(DateTime);
+
+            BSECommands cmd = new BSECommands();
         }
 
         private void btnDownloadBSEData_Click(object sender, EventArgs e)
@@ -173,7 +175,9 @@ namespace BSECron.UI
 
             string scripName = string.Empty;
             
-            var priceSpread = bSECommands.GetPriceSpread(grdBseData.DataSource, e.RowIndex,ref scripName);
+            var priceSpread = //bSECommands.GetPriceSpread(grdBseData.DataSource, e.RowIndex,ref scripName);
+
+            bSECommands.GetPriceSpread(grdBseData.DataSource, e.RowIndex,ref scripName,true);
 
             chrtBseData.Series["Series1"].Points.Clear();
 

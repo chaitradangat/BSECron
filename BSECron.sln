@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BSECron.DataAccess", "BSECr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BSECron.Common", "BSECron.Common\BSECron.Common.csproj", "{A8231BEF-E544-4B2F-BDCA-DCCD92FF2DCF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BSECron.Domain", "BSECron.Domain\BSECron.Domain.csproj", "{7860BA02-FEEA-4332-9306-2CEACC76E13C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BSECron.Domain", "BSECron.Domain\BSECron.Domain.csproj", "{7860BA02-FEEA-4332-9306-2CEACC76E13C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BSECron.WebQueries", "BSECron.WebQueries\BSECron.WebQueries.csproj", "{5A57F6F7-3824-4E23-9B49-55F49195F31A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{7860BA02-FEEA-4332-9306-2CEACC76E13C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7860BA02-FEEA-4332-9306-2CEACC76E13C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7860BA02-FEEA-4332-9306-2CEACC76E13C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A57F6F7-3824-4E23-9B49-55F49195F31A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A57F6F7-3824-4E23-9B49-55F49195F31A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A57F6F7-3824-4E23-9B49-55F49195F31A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A57F6F7-3824-4E23-9B49-55F49195F31A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

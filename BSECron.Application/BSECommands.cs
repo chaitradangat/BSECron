@@ -18,7 +18,10 @@ using ClosedXML.Excel;
 
 using BSECron.DataAccess;
 using BSECron.Common;
+using BSECron.WebQueries;
+
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace BSECron.Application
 {
@@ -142,6 +145,10 @@ namespace BSECron.Application
 
             int idx = GetDateColumnIndex(dtBseStatData);
 
+            dtBseStatData = AddStreakInfoToTable(dtBseStatData, idx);
+
+            idx = GetDateColumnIndex(dtBseStatData);
+
             for (int i = idx; i <= dtBseStatData.Columns.Count - 1; ++i)
             {
                 dtBseStatData.Columns[i].ColumnName = string.Format("({0}){1}", i - idx + 1, dtBseStatData.Columns[i].ColumnName);
@@ -207,23 +214,7 @@ namespace BSECron.Application
             {
                 string filterString = string.Empty;
 
-                //int i = dtBseData_.Columns.Count - 1;
-
                 int idx = GetDateColumnIndex(dtBseData_);
-
-                /*
-                while (i > idx && spread > 0)
-                {
-                    filterString += string.Format(" [{0}] <= 0 AND", dtBseData_.Columns[i].ColumnName);
-                    --i;
-                    --spread;
-                }
-
-                if (filterString.EndsWith("AND"))
-                {
-                    filterString = filterString.Remove(filterString.LastIndexOf("AND"));
-                }
-                */
 
                 while (idx <= dtBseData_.Columns.Count - 1 && spread > 0)
                 {
@@ -318,13 +309,13 @@ namespace BSECron.Application
             }
         }
 
-        public Dictionary<string, double> GetPriceSpread(object DtBseData, int index,ref string scripName)
+        public Dictionary<string, double> GetPriceSpread(object DtBseData, int index, ref string scripName)
         {
             Dictionary<string, double> priceSpread = new Dictionary<string, double>();
 
             DataTable dtBseData = (DataTable)DtBseData;
 
-            if (dtBseData != null && dtBseData.Rows.Count > 0 && index < dtBseData.Rows.Count && index!=-1)
+            if (dtBseData != null && dtBseData.Rows.Count > 0 && index < dtBseData.Rows.Count && index != -1)
             {
                 DataRow dr = dtBseData.DefaultView[index].Row;//dtBseData.Rows[index];
 
@@ -345,13 +336,145 @@ namespace BSECron.Application
                     priceSpread.Add(Regex.Replace(columnName, "\\(\\d+\\)", ""), closePrice);
 
 
-                    closePrice = closePrice - (closePrice * (dr.Field<double>(columnName)/100));
+                    closePrice = closePrice - (closePrice * (dr.Field<double>(columnName) / 100));
 
                     ++cIdx;
                 }
             }
 
             return priceSpread;
+        }
+
+        public Dictionary<string, double> GetPriceSpread(object DtBseData, int index, ref string scripName, bool useLive)
+        {
+            DataTable dtBseData = (DataTable)DtBseData;
+
+            Dictionary<string, double> priceSpread = new Dictionary<string, double>();
+
+            if (dtBseData != null && dtBseData.Rows.Count > 0 && index < dtBseData.Rows.Count && index != -1)
+            {
+                DataRow dr = dtBseData.DefaultView[index].Row;
+
+                int cIdx = GetDateColumnIndex(dtBseData);
+
+                var columnName = string.Empty;
+
+                scripName = dr.Field<string>("SC_NAME");
+
+                WebCommands wcmd = new WebCommands();
+
+                var graphData = wcmd.GetGraphDataForSymbol(scripName);
+
+                if (graphData != null)
+                {
+                    dynamic json = JsonConvert.DeserializeObject(graphData);
+
+                    int idx = 0;
+
+                    if (json != null && json.chart != null && json.chart.result != null && json.chart.result[0] != null)
+                    {
+                        if (json.chart.result[0].timestamp != null && json.chart.result[0].indicators.adjclose[0] != null)
+                        {
+                            foreach (var item in json.chart.result[0].timestamp)
+                            {
+                                priceSpread.Add(new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Convert.ToInt64(item)).ToString("dd-MMM-yyyy"), json.chart.result[0].indicators.adjclose[0].adjclose[idx] != null? Convert.ToDouble(json.chart.result[0].indicators.adjclose[0].adjclose[idx]):0);
+                                idx++;
+                            }
+                        }
+                    }
+                }
+            }
+            return priceSpread;
+        }
+
+        public DataTable AddStreakInfoToTable(DataTable dtBseData, int dateColumnIndex)
+        {
+            if (dtBseData != null && dtBseData.Columns.Count > 0)
+            {
+                dtBseData.Columns.Add("POS_STREAK", typeof(Int32)).SetOrdinal(dateColumnIndex);
+                dtBseData.Columns.Add("NEG_STREAK", typeof(Int32)).SetOrdinal(dateColumnIndex + 1);
+                dtBseData.Columns.Add("RECENT_STREAK", typeof(Int32)).SetOrdinal(dateColumnIndex + 2);
+            }
+
+            dateColumnIndex += 3;
+
+            for (int i = 0; i < dtBseData.Rows.Count; i++)
+            {
+                int pos_streak = 0;
+
+                int neg_streak = 0;
+
+                int pos_streak_temp = 0;
+
+                int neg_streak_temp = 0;
+
+                DataRow dr = dtBseData.Rows[i];
+
+                for (int j = dateColumnIndex; j < dr.ItemArray.Length; j++)
+                {
+                    if (Convert.ToDouble(Convert.ToString(dr[j])) > 0)
+                    {
+                        ++pos_streak_temp;
+
+                        if (neg_streak_temp > 0)
+                        {
+                            if (neg_streak < neg_streak_temp)
+                            {
+                                neg_streak = neg_streak_temp;
+                            }
+                            neg_streak_temp = 0;
+                        }
+                        if (neg_streak == 0)
+                        {
+                            dr["RECENT_STREAK"] = pos_streak_temp;
+                        }
+                    }
+                    if (Convert.ToDouble(Convert.ToString(dr[j])) < 0)
+                    {
+                        ++neg_streak_temp;
+
+                        if (pos_streak_temp > 0)
+                        {
+                            if (pos_streak < pos_streak_temp)
+                            {
+                                pos_streak = pos_streak_temp;
+                            }
+                            pos_streak_temp = 0;
+                        }
+                        if (pos_streak == 0)
+                        {
+                            dr["RECENT_STREAK"] = -1 * neg_streak_temp;
+                        }
+                    }
+                    if (Convert.ToDouble(Convert.ToString(dr[j])) == 0)
+                    {
+                        continue;
+                    }
+                }
+
+                if (pos_streak < pos_streak_temp)
+                {
+                    pos_streak = pos_streak_temp;
+                }
+
+                if (neg_streak<neg_streak_temp)
+                {
+                    neg_streak = neg_streak_temp;
+                }
+
+                dr["POS_STREAK"] = pos_streak;
+
+                dr["NEG_STREAK"] = neg_streak;
+
+                if (dr["RECENT_STREAK"] == null)
+                {
+                    dr["RECENT_STREAK"] = 0;
+                }
+
+                dtBseData.AcceptChanges();
+            }
+
+            return dtBseData;
         }
     }
 }
