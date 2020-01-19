@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.dateToPicker = new System.Windows.Forms.DateTimePicker();
             this.lblToDate = new System.Windows.Forms.Label();
             this.dateFromPicker = new System.Windows.Forms.DateTimePicker();
@@ -54,12 +54,14 @@
             this.ddlSortColumns = new System.Windows.Forms.ComboBox();
             this.btnResetData = new System.Windows.Forms.Button();
             this.chrtBseData = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.trckGraphDuration = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.grdBseData)).BeginInit();
             this.grpBoxTopFilters.SuspendLayout();
             this.grpBoxOperations.SuspendLayout();
             this.grpDateSelectors.SuspendLayout();
             this.grpSortOrder.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chrtBseData)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trckGraphDuration)).BeginInit();
             this.SuspendLayout();
             // 
             // dateToPicker
@@ -1017,29 +1019,39 @@
             // 
             // chrtBseData
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chrtBseData.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chrtBseData.Legends.Add(legend1);
-            this.chrtBseData.Location = new System.Drawing.Point(11, 423);
+            chartArea4.Name = "ChartArea1";
+            this.chrtBseData.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            this.chrtBseData.Legends.Add(legend4);
+            this.chrtBseData.Location = new System.Drawing.Point(11, 476);
             this.chrtBseData.Name = "chrtBseData";
             this.chrtBseData.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            series1.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Date;
-            series1.YValuesPerPoint = 6;
-            this.chrtBseData.Series.Add(series1);
-            this.chrtBseData.Size = new System.Drawing.Size(1512, 268);
+            series4.ChartArea = "ChartArea1";
+            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            series4.Legend = "Legend1";
+            series4.Name = "Series1";
+            series4.XValueType = System.Windows.Forms.DataVisualization.Charting.ChartValueType.Date;
+            series4.YValuesPerPoint = 6;
+            this.chrtBseData.Series.Add(series4);
+            this.chrtBseData.Size = new System.Drawing.Size(1512, 218);
             this.chrtBseData.TabIndex = 22;
             this.chrtBseData.Text = "chart1";
+            // 
+            // trckGraphDuration
+            // 
+            this.trckGraphDuration.Location = new System.Drawing.Point(12, 425);
+            this.trckGraphDuration.Name = "trckGraphDuration";
+            this.trckGraphDuration.Size = new System.Drawing.Size(1511, 45);
+            this.trckGraphDuration.TabIndex = 23;
+            this.trckGraphDuration.Tag = "";
+            this.trckGraphDuration.Scroll += new System.EventHandler(this.trckGraphDuration_Scroll);
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1529, 729);
+            this.Controls.Add(this.trckGraphDuration);
             this.Controls.Add(this.chrtBseData);
             this.Controls.Add(this.btnResetData);
             this.Controls.Add(this.grpSortOrder);
@@ -1061,6 +1073,7 @@
             this.grpSortOrder.ResumeLayout(false);
             this.grpSortOrder.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.chrtBseData)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trckGraphDuration)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1090,6 +1103,7 @@
         private System.Windows.Forms.Button btnFilter;
         private System.Windows.Forms.Button btnResetData;
         private System.Windows.Forms.DataVisualization.Charting.Chart chrtBseData;
+        private System.Windows.Forms.TrackBar trckGraphDuration;
     }
 }
 
