@@ -379,10 +379,43 @@ namespace BSECron.Application
                             {
                                 if (json.chart.result[0].indicators.adjclose[0].adjclose[idx] != null)
                                 {
-                                    priceSpread.Add(new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Convert.ToInt64(item)).ToString("dd-MMM-yyyy"),Convert.ToDouble(json.chart.result[0].indicators.adjclose[0].adjclose[idx]));
+                                    priceSpread.Add(new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Convert.ToInt64(item)).ToString("dd-MMM-yyyy"), Convert.ToDouble(json.chart.result[0].indicators.adjclose[0].adjclose[idx]));
                                 }
                                 idx++;
                             }
+                        }
+                    }
+                }
+            }
+            return priceSpread;
+        }
+
+
+        public Dictionary<string, double> GetPriceSpread(string scripName, string range, bool useLive)
+        {
+            Dictionary<string, double> priceSpread = new Dictionary<string, double>();
+
+            WebCommands wcmd = new WebCommands();
+
+            var graphData = wcmd.GetGraphDataForSymbol(scripName,range);
+
+            if (graphData != null)
+            {
+                dynamic json = JsonConvert.DeserializeObject(graphData);
+
+                int idx = 0;
+
+                if (json != null && json.chart != null && json.chart.result != null && json.chart.result[0] != null)
+                {
+                    if (json.chart.result[0].timestamp != null && json.chart.result[0].indicators.adjclose[0] != null)
+                    {
+                        foreach (var item in json.chart.result[0].timestamp)
+                        {
+                            if (json.chart.result[0].indicators.adjclose[0].adjclose[idx] != null)
+                            {
+                                priceSpread.Add(new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(Convert.ToInt64(item)).ToString("dd-MMM-yyyy"), Convert.ToDouble(json.chart.result[0].indicators.adjclose[0].adjclose[idx]));
+                            }
+                            idx++;
                         }
                     }
                 }
@@ -460,7 +493,7 @@ namespace BSECron.Application
                     pos_streak = pos_streak_temp;
                 }
 
-                if (neg_streak<neg_streak_temp)
+                if (neg_streak < neg_streak_temp)
                 {
                     neg_streak = neg_streak_temp;
                 }
