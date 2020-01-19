@@ -22,6 +22,8 @@ namespace BSECron.UI
 
         DateTime dtToDateCache;
 
+        string graphScripName;
+
         public frmMain()
         {
             InitializeComponent();
@@ -36,6 +38,8 @@ namespace BSECron.UI
             dtToDateCache = default(DateTime);
 
             BSECommands cmd = new BSECommands();
+
+            graphScripName = default(string);
         }
 
         private void btnDownloadBSEData_Click(object sender, EventArgs e)
@@ -81,7 +85,7 @@ namespace BSECron.UI
 
                 DataTable dtBseData = (DataTable)grdBseData.DataSource;
 
-                if (dtBseData!=null)
+                if (dtBseData != null)
                 {
                     utility.DumpDataToExcel(dtBseData, saveFileDialog.FileName);
                 }
@@ -149,7 +153,7 @@ namespace BSECron.UI
 
         private void ddlSortColumns_SelectedIndexChanged(object sender, EventArgs e)
         {
-            
+
         }
 
         private void btnFilter_Click(object sender, EventArgs e)
@@ -174,18 +178,82 @@ namespace BSECron.UI
             BSECommands bSECommands = new BSECommands();
 
             string scripName = string.Empty;
-            
+
+            var colIndex = e.ColumnIndex;
+
             var priceSpread = //bSECommands.GetPriceSpread(grdBseData.DataSource, e.RowIndex,ref scripName);
 
-            bSECommands.GetPriceSpread(grdBseData.DataSource, e.RowIndex,ref scripName,true);
+            bSECommands.GetPriceSpread(grdBseData.DataSource, e.RowIndex, ref scripName, true);
 
             chrtBseData.Series["Series1"].Points.Clear();
 
             chrtBseData.Series["Series1"].LegendText = scripName;
 
+            graphScripName = scripName;
+
+
             foreach (var item in priceSpread)
             {
                 chrtBseData.Series["Series1"].Points.AddXY(item.Key, item.Value);
+            }
+
+        }
+
+        private void trckGraphDuration_Scroll(object sender, EventArgs e)
+        {
+            if (graphScripName!= null)
+            {
+                BSECommands cmd = new BSECommands();
+
+                var range = "max";
+
+                switch (trckGraphDuration.Value)
+                {
+                    case 1:
+                        range = "1d";
+                        break;
+                    case 2:
+                        range = "5d";
+                        break;
+                    case 3:
+                        range = "1mo";
+                        break;
+                    case 4:
+                        range = "3mo";
+                        break;
+                    case 5:
+                        range = "6mo";
+                        break;
+                    case 6:
+                        range = "1y";
+                        break;
+                    case 7:
+                        range = "2y";
+                        break;
+                    case 8:
+                        range = "5y";
+                        break;
+                    case 9:
+                        range = "10y";
+                        break;
+                    case 10:
+                        range = "ytd";
+                        break;
+                    default:
+                        range = "max";
+                        break;
+                }
+
+                var priceSpread =  cmd.GetPriceSpread(graphScripName, range, true);
+
+                chrtBseData.Series["Series1"].Points.Clear();
+
+                chrtBseData.Series["Series1"].LegendText = graphScripName;
+
+                foreach (var item in priceSpread)
+                {
+                    chrtBseData.Series["Series1"].Points.AddXY(item.Key, item.Value);
+                }
             }
         }
     }
