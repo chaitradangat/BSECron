@@ -23,6 +23,8 @@ using BSECron.WebQueries;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
+using System.Linq;
+
 namespace BSECron.Application
 {
     public class BSECommands
@@ -511,6 +513,37 @@ namespace BSECron.Application
             }
 
             return dtBseData;
+        }
+
+        public DataTable FilterMarginStocks(DataTable dtBaseData,string stockList)
+        {
+            if (dtBaseData != null)
+            {
+                var marginStocks = new List<string>(stockList.Split(','));
+
+                marginStocks = marginStocks.Select(x => x.Trim()).ToList();
+
+
+
+                //var bseDataFiltered = (
+                //                       from m in marginStocks
+                //                       from r in dtBaseData.AsEnumerable()
+                //                       let sc_name = r.Field<string>("SC_NAME").ToString().Replace(" ", "")
+                //                       where sc_name.Length > 4 &&  m.Contains(sc_name.Remove(sc_name.Length - 2))
+                //                       //where marginStocks.Contains(sc_name.Remove(sc_name.Length-2))
+                //                       select r).CopyToDataTable();
+
+                var bseDataFiltered = (from r in dtBaseData.AsEnumerable()
+                                       where marginStocks.Contains(r.Field<string>("SC_NAME").ToString().Trim())
+                                       select r).Distinct().CopyToDataTable();
+
+
+                return bseDataFiltered;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
