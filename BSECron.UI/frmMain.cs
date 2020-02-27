@@ -256,5 +256,14 @@ namespace BSECron.UI
                 }
             }
         }
+
+        private void btnMarginStocks_Click(object sender, EventArgs e)
+        {
+            string stockList = System.Configuration.ConfigurationManager.AppSettings["MAGINSTOCKNAMES"];
+
+            BSECommands bSECommands = new BSECommands();
+
+            grdBseData.DataSource = bSECommands.FilterMarginStocks((DataTable)grdBseData.DataSource, stockList);
+        }
     }
 }
